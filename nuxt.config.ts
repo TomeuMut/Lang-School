@@ -5,6 +5,9 @@ export default defineNuxtConfig({
   devtools: { enabled: false },
   css: ['~/assets/css/main.css', '~/assets/css/editorial.css'],
   vite: { plugins: [tailwindcss()] },
+  runtimeConfig: {
+    public: { supabaseUrl: '', supabasePublishableKey: '' },
+  },
   app: {
     head: {
       title: 'Lang School · Tu próxima meta, B2',

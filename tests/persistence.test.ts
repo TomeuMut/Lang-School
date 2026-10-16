@@ -6,6 +6,25 @@ import { parseWorkspace } from '../app/utils/practice'
 import { exercises } from '../app/data/exercises'
 
 const KEY = 'lang-school:progress:v1'
+test('switching account storage resets private history, drafts and selected context', async t => {
+  const firstStorage = memoryStorage()
+  const first = practice(t, firstStorage)
+  first.changeScope('en', 'C1')
+  first.start('writing')
+  first.response.value = 'A private draft from the first account'
+  await nextTick()
+  const secondStorage = memoryStorage()
+  first.replaceStorage(secondStorage)
+  await nextTick()
+  assert.equal(first.language.value, 'ca')
+  assert.equal(first.level.value, 'B2')
+  assert.equal(first.response.value, '')
+  assert.equal(first.session.value.length, 0)
+  assert.equal(first.progress.value.attempts.length, 0)
+  assert.ok(!secondStorage.getItem(KEY)?.includes('private draft'))
+  first.replaceStorage(firstStorage)
+  assert.equal(first.response.value, 'A private draft from the first account')
+})
 function memoryStorage(initial: string | null = null) {
   const entries = new Map<string, string>(initial ? [[KEY, initial]] : [])
   return { getItem: (key: string) => entries.get(key) ?? null, setItem: (key: string, value: string) => { entries.set(key, value) } }

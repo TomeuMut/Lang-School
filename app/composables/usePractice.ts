@@ -107,6 +107,25 @@ export function createPractice() {
     ready.value = true
     save()
   }
+  function replaceStorage(nextStorage: PracticeStorage | null) {
+    ready.value = false
+    progress.value = emptyProgress()
+    language.value = 'ca'
+    level.value = 'B2'
+    session.value = []
+    index.value = 0
+    selected.value = null
+    response.value = ''
+    checklist.value = []
+    checked.value = false
+    finished.value = false
+    sessionResults.value = []
+    recoveredDraft.value = ''
+    restoredSession.value = false
+    draftSaved.value = false
+    storageError.value = ''
+    restore(nextStorage)
+  }
   const persistedState = [language, level, session, index, selected, response, checklist, checked, finished, sessionResults, progress, recoveredDraft]
   watch(persistedState, () => { if (ready.value) draftSaved.value = false }, { deep: true, flush: 'sync' })
   watch(persistedState, save, { deep: true, flush: 'post' })
@@ -173,5 +192,5 @@ export function createPractice() {
     link.click()
     URL.revokeObjectURL(url)
   }
-  return { language, level, progress, storageError, ready, draftSaved, restoredSession, recoveredDraft, session, index, selected, response, checklist, checked, finished, sessionResults, pool, current, scopedAttempts, accuracy, unseen, sessionScore, wordCount, start, submit, next, changeScope, clearProgress, downloadProgress, restore, save }
+  return { language, level, progress, storageError, ready, draftSaved, restoredSession, recoveredDraft, session, index, selected, response, checklist, checked, finished, sessionResults, pool, current, scopedAttempts, accuracy, unseen, sessionScore, wordCount, start, submit, next, changeScope, clearProgress, downloadProgress, restore, replaceStorage, save }
 }

@@ -1,4 +1,19 @@
 /* Editorial workspace: warm paper, forest ink, readable controls. */
+.account-shell { min-height: 100dvh; display: grid; place-items: center; padding: 24px; background: var(--paper); }
+.account-panel { width: min(100%, 480px); }
+.account-brand { display: inline-block; color: var(--ink); font-size: 24px; font-weight: 700; margin-bottom: 32px; }
+.account-panel h1 { font-size: clamp(28px, 5vw, 38px); line-height: 1.2; margin-bottom: 16px; }
+.account-form { display: grid; gap: 12px; margin: 28px 0; }
+.account-form label { font-weight: 600; }
+.account-form input { width: 100%; min-height: 48px; border: 1px solid var(--line); border-radius: 6px; background: white; padding: 12px; font: inherit; color: var(--ink); }
+.account-form button { min-height: 44px; justify-content: center; white-space: normal; }
+.account-panel .notice { margin-top: 20px; }
+.account-panel input:focus-visible { outline: 3px solid #285e48; outline-offset: 3px; }
+.sync-notice { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.sync-notice > span { flex: 1 1 260px; }
+.local-profile > div { min-width: 0; }
+.local-profile small { overflow-wrap: anywhere; }
+.account-logout { margin-top: 12px; min-height: 44px; }
 :root { --paper: #f7f5ef; --ink: #263f35; --muted: #637067; --line: #dddcd0; background: var(--paper); color: var(--ink); }
 ::selection { background: #dce5d6; color: #263f35; }
 textarea { caret-color: #285e48; }
