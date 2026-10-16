@@ -63,7 +63,9 @@ Always check the specifications for the actual exam session. Neither affiliation
 - `app/app.vue`: responsive dashboard, practice, history, and resource screens.
 - `tests/practice.test.ts`: bank integrity, anti-repeat selection, and storage recovery.
 
-Progress is stored under `lang-school:progress:v1` in localStorage. Text responses are saved on this device; there is no login, analytics, cross-device synchronisation, or cloud backup. Clearing browser data removes the history. JSON export is an archive; importing it is not implemented yet. If storage is blocked or full, the interface reports that progress may be temporary.
+Progress is stored under `lang-school:progress:v1` in localStorage. Submitted text responses are saved on this device; there is no login, analytics, cross-device synchronisation, or cloud backup. Clearing browser data removes the history. JSON export is an archive; importing it is not implemented yet. If storage is blocked or full, the interface reports that progress may be temporary.
+
+An unfinished session stays in memory when navigating between app views. Changing language, level, or starting another skill asks before replacing that session. Unsaved text is not a persistent draft: use **Guardar práctica** to save it. The app requests the browser's leave-page warning when unsaved text or self-assessment is present, but browsers may suppress that warning. Reloading or closing the page can discard unfinished work.
 
 ## Next milestones
 
