@@ -62,10 +62,13 @@ Always check the specifications for the actual exam session. Neither affiliation
 - `app/composables/usePractice.ts`: session lifecycle and local persistence.
 - `app/app.vue`: responsive dashboard, practice, history, and resource screens.
 - `tests/practice.test.ts`: bank integrity, anti-repeat selection, and storage recovery.
+- `tests/persistence.test.ts`: draft restoration, completion recovery, stale-tab protection, incompatible drafts, and storage failures.
 
 Progress is stored under `lang-school:progress:v1` in localStorage. Submitted text responses are saved on this device; there is no login, analytics, cross-device synchronisation, or cloud backup. Clearing browser data removes the history. JSON export is an archive; importing it is not implemented yet. If storage is blocked or full, the interface reports that progress may be temporary.
 
-An unfinished session stays in memory when navigating between app views. Changing language, level, or starting another skill asks before replacing that session. Unsaved text is not a persistent draft: use **Guardar práctica** to save it. The app requests the browser's leave-page warning when unsaved text or self-assessment is present, but browsers may suppress that warning. Reloading or closing the page can discard unfinished work.
+The active session, language, level, selected answer, written draft and self-assessment are automatically saved on this device together with history. Reloading restores the session; **Continuar sesión** resumes it. **Guardar práctica** marks an exercise as completed. Changing context or starting another skill asks before replacing an unfinished session. Clearing progress also clears drafts.
+
+Storage failures are displayed explicitly. An older tab detects that another tab has changed storage and pauses its own writes to avoid overwriting newer progress; export the current session before reloading that tab. JSON export includes the current session and draft, but import is still not implemented. A draft incompatible with an updated exercise bank is retained as recoverable text rather than silently discarded. Browser-local storage is not a cloud backup; clearing site data removes it.
 
 ## Next milestones
 
