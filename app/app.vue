@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ArrowUpRight, ArrowRight, BookOpen, AudioLines, Check, ChevronRight, CircleHelp, ClipboardCheck, Clock3, Download, GraduationCap, LayoutDashboard, Leaf, MessageCircle, PenLine, RotateCcw, Settings2, Sparkles, Target, TrendingUp, X } from 'lucide-vue-next'
+import { ArrowUpRight, ArrowRight, BookOpen, AudioLines, Check, ChevronRight, CircleHelp, ClipboardCheck, Clock3, Download, GraduationCap, LayoutDashboard, Leaf, MessageCircle, PenLine, RotateCcw, Settings2, Sparkles, Target, TrendingUp } from 'lucide-vue-next'
 import { exercises } from '~/data/exercises'
 import { levels, type Skill, type Language, type Level } from '~/utils/practice'
 

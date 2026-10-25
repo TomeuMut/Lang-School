@@ -116,3 +116,7 @@ As of this review, both installed versions are the latest published npm versions
 Tomeu Ferments and Portfolio ship static files, so these Node packages do not execute on public requests. Lang School builds a Nitro server; deployment runtime and bundled dependencies require separate verification. Passing tests and builds does not establish that every dependency vulnerability is unreachable.
 
 Validated locally with a SHA-256-verified official Node.js 22.23.4 binary: type checks and production builds for all three applications, all 20 Lang School tests, and Tomeu Ferments' generated SEO checks. Static builds emit a Nuxt/Nitro `cache-driver.mjs` external-resolution warning but finish successfully. No production deployment or global Node/PHP installation was changed.
+
+## CI/CD
+
+GitHub Actions runs lint, type checks, unit tests, production build and desktop/mobile browser smoke tests. Vercel handles deployments through its Git integration. See [CI/CD setup and local commands](docs/ci-cd.md) for coverage, reports and the separate deployment-gating configuration.
