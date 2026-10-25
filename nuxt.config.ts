@@ -1,4 +1,6 @@
 import tailwindcss from '@tailwindcss/vite'
+import { env } from 'node:process'
+import { publicSupabaseConfig } from './config/supabase'
 
 export default defineNuxtConfig({
   compatibilityDate: '2026-10-15',
@@ -6,7 +8,7 @@ export default defineNuxtConfig({
   css: ['~/assets/css/main.css', '~/assets/css/editorial.css'],
   vite: { plugins: [tailwindcss()] },
   runtimeConfig: {
-    public: { supabaseUrl: '', supabasePublishableKey: '' },
+    public: publicSupabaseConfig(env),
   },
   app: {
     head: {
