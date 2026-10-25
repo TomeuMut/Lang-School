@@ -24,6 +24,8 @@ NUXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-publishable-key
 
 Redeploy after changing environment variables. Both values are public client configuration; the publishable key does not grant access to another user's progress. Database policies enforce that separation. No additional server, persistent Vercel disk or scheduled job is required.
 
+The Vercel Supabase integration's `SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` variables are also accepted at build time, without renaming them. `SUPABASE_PUBLISHABLE_KEY` and the legacy `SUPABASE_ANON_KEY` are public-key fallbacks. Explicit `NUXT_PUBLIC_*` values take precedence. Enable the integration variables for the intended Vercel environments and redeploy after connecting or rotating keys. Secret keys, service-role keys, JWT secrets and Postgres credentials are never mapped into public runtime configuration.
+
 For local development, copy `.env.example` to `.env` and fill in the same values. If neither is configured, the existing browser-local mode remains available and displays an explicit local-mode notice. A partially configured environment stops at a configuration error rather than silently switching to local mode.
 
 ## Daily use
@@ -52,6 +54,14 @@ Local checks cover the practice engine, serialized cloud writes, failed-save ret
 7. Test the deployed Vercel URL on a narrow mobile screen and from the office network. Corporate network rules may need to allow your Supabase project origin.
 
 No real account, database migration, SMTP configuration or Vercel environment has been provisioned by the source changes. Live end-to-end checks remain pending until those services are configured.
+
+## Supabase connection verification (2026-10-25)
+
+Both repository migrations were applied to the connected Supabase database. Live transactional checks passed for atomic profile creation, rejection of incomplete profile metadata, owner-only profile reads, cross-account progress isolation, anonymous access denial, and revision conflicts. All synthetic database test data was rolled back. Public HTTP checks confirmed email sign-up enabled, email confirmation required, and anonymous REST reads denied with HTTP 401 for both tables.
+
+Live Auth/Data API checks also passed for password login, private profile loading, cloud save/load and isolation between two synthetic accounts. Both synthetic accounts and their dependent data were removed afterward; no emails were sent. These accounts used administrative email confirmation solely for the isolated test, so this does not verify end-user confirmation email delivery.
+
+Email delivery, confirmation redirect URLs, password recovery, browser flows and the Vercel deployment still require verification. No SMTP or Auth redirect configuration was changed by these database checks. The earlier provisioning note above describes the original source-only implementation; this dated entry records the database work performed afterward.
 
 References: [Supabase password login](https://supabase.com/docs/reference/javascript/auth-signinwithpassword), [password recovery](https://supabase.com/docs/reference/javascript/auth-resetpasswordforemail), [auth events](https://supabase.com/docs/reference/javascript/auth-onauthstatechange), [row-level security](https://supabase.com/docs/guides/database/postgres/row-level-security).
 

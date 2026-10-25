@@ -81,6 +81,8 @@ Storage failures are displayed explicitly. In local mode, an older tab detects t
 
 The account screen supports registration, login and password recovery. Apply `supabase/migrations/202610250001_user_profiles.sql` after the progress migration and enable email sign-ups with confirmation in Supabase. Profiles are private to their owner. The progress screen includes a 14-day activity chart and an accessible daily accuracy table, scoped to language and level. See [account setup](docs/account-setup.md) for configuration and live checks.
 
+Vercel's Supabase integration variables (`SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`) are supported directly at build time. Explicit `NUXT_PUBLIC_*` settings override these aliases. Redeploy after configuring the integration. Only public connection values enter client runtime configuration; database passwords and administrative keys are never exposed by this mapping.
+
 ## Next milestones
 
 1. Teacher-reviewed B2 banks, tagged by exam track, topic, skill, and difficulty, with substantially more unique tasks.
