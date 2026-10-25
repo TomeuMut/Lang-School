@@ -8,7 +8,7 @@ A Nuxt 4 and Tailwind CSS language-practice application for Catalan and English,
 - Automatic checking and explanations for multiple-choice activities.
 - Writing prompts, indicative word ranges, and self-assessment checklists.
 - Speaking prompts for independent or partner practice; no microphone capture or automatic assessment.
-- Personal email/password access with Supabase, cloud history and draft synchronization, objective-answer accuracy, unique-completion coverage, and JSON export. Browser-local mode remains available without account configuration.
+- Public registration with email, name, surname, birth date and confirmed password; email/password access with Supabase, cloud history and draft synchronization, objective-answer accuracy, unique-completion coverage, and JSON export. Browser-local mode remains available without account configuration.
 - Unseen activities take priority. Once a skill's pool is exhausted, the least recently seen activities return. Questions are marked as seen when displayed, including unfinished questions. No activity appears twice within one session.
 
 Content and level assignments are indicative starter material awaiting teacher review. This is not an official exam simulator or an indicator of certification readiness. The small starter bank will repeat quickly within individual skills; changing answer order is not treated as new content.
@@ -40,7 +40,7 @@ The lockfile pins the installed dependency tree. Browser-local mode needs no ext
 3. Use `npm ci` as the install command and `npm run build` as the build command. Leave the output directory at its framework default.
 4. Use `main` as the production branch. Feature and integration branches can use Vercel Preview deployments.
 5. Deploy and verify language/level selection, objective correction, writing, history persistence after reload, and responsive layout.
-6. For personal account access, apply the Supabase migration, create your user with public sign-ups disabled, configure the two public variables in Vercel, and redeploy. Follow [account setup](docs/account-setup.md) for recovery URLs, privacy and live verification.
+6. For personal account access, apply the Supabase migration, apply the user profiles migration, enable public sign-ups and email confirmation, configure the two public variables in Vercel, and redeploy. Follow [account setup](docs/account-setup.md) for recovery URLs, privacy and live verification.
 
 `vercel.json` declares the framework and commands. Nuxt/Nitro handles Vercel detection and output. A domain can stay with its existing provider; apply the exact DNS records shown by Vercel when attaching it.
 
@@ -76,6 +76,10 @@ Without Supabase configuration, progress uses `lang-school:progress:v1` in local
 The active session, language, level, selected answer, written draft and self-assessment are saved together with history, in the account when configured or on this device in local mode. Reloading restores the session; **Continuar sesión** resumes it. **Guardar práctica** marks an exercise as completed. Changing context or starting another skill asks before replacing an unfinished session. Clearing progress also clears drafts.
 
 Storage failures are displayed explicitly. In local mode, an older tab detects that another tab has changed storage and pauses its own writes; in account mode, the database compares revisions across devices. Export the current session before discarding pending changes. JSON export includes the current session and draft, but importing exported files is not implemented. A draft incompatible with an updated exercise bank is retained as recoverable text rather than silently discarded. Browser-local storage is not a cloud backup; clearing site data removes local-mode progress but does not delete synchronized account progress.
+
+## User registration and progression
+
+The account screen supports registration, login and password recovery. Apply `supabase/migrations/202610250001_user_profiles.sql` after the progress migration and enable email sign-ups with confirmation in Supabase. Profiles are private to their owner. The progress screen includes a 14-day activity chart and an accessible daily accuracy table, scoped to language and level. See [account setup](docs/account-setup.md) for configuration and live checks.
 
 ## Next milestones
 
