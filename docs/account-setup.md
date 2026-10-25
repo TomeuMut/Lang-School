@@ -1,4 +1,4 @@
-# Private account and cloud progress
+# User accounts and cloud progress
 
 Lang School runs on Vercel with Supabase Auth and Postgres. Vercel does not store progress in its filesystem. Exercise history, seen questions, selected language/level, active session, written drafts and self-assessment are stored in the authenticated user's `user_progress` row.
 
@@ -6,10 +6,10 @@ Lang School runs on Vercel with Supabase Auth and Postgres. Vercel does not stor
 
 1. Create a Supabase project in a suitable region.
 2. Run `supabase/migrations/202610160001_user_progress.sql` in the SQL editor, or apply it using your normal Supabase migration workflow. It creates the table, owner-only row-level-security policies and the atomic revision-based save function.
-3. In Authentication settings, enable email/password authentication, disable public sign-ups and set the minimum password length to 12. There is no public registration screen. Create your personal user in Authentication > Users with your email and a strong password. Confirm the email through the dashboard for this administrator-created account. Do not put your password in Git or environment variables.
+3. In Authentication settings, enable email/password authentication, enable public sign-ups, enable email confirmation and set the minimum password length to 12. Apply `supabase/migrations/202610250001_user_profiles.sql` before enabling sign-ups. New users register with email, name, surname, date of birth, password and password confirmation. Password confirmation is validated only and never persisted. Passwords and email are managed by Auth; `user_profiles` stores the remaining fields through an atomic insert trigger. Existing users can continue signing in without an invented profile. New accounts created through the dashboard also need valid name, surname and birth metadata. Do not put passwords in Git or environment variables.
 4. Set the Auth Site URL to your stable Vercel or custom-domain origin, such as `https://your-project.vercel.app`.
 5. Add the exact recovery redirect URL `https://your-project.vercel.app/` to the allowed redirect URLs. For local development, add `http://localhost:3000/` (or the port actually in use). If testing a preview, explicitly allow that preview origin too. Use a stable production origin for normal practice.
-6. Configure the email provider in Supabase for password recovery. Its built-in development email service has delivery restrictions and is not a substitute for production SMTP. Test delivery to your own email before relying on recovery.
+6. Configure the email provider in Supabase for registration confirmation and password recovery. Its built-in development email service has delivery restrictions and is not a substitute for production SMTP. Test delivery to your own email before relying on recovery.
 
 The application uses only a publishable key (or the legacy anon key), with RLS enabled. Never use a secret or service-role key in a `NUXT_PUBLIC_*` variable. The database rejects requests without authentication and restricts rows to `auth.uid() = user_id`. The save function also checks the explicitly bound workspace owner to reject a request if authentication changes while a save is in flight.
 
@@ -54,3 +54,11 @@ Local checks cover the practice engine, serialized cloud writes, failed-save ret
 No real account, database migration, SMTP configuration or Vercel environment has been provisioned by the source changes. Live end-to-end checks remain pending until those services are configured.
 
 References: [Supabase password login](https://supabase.com/docs/reference/javascript/auth-signinwithpassword), [password recovery](https://supabase.com/docs/reference/javascript/auth-resetpasswordforemail), [auth events](https://supabase.com/docs/reference/javascript/auth-onauthstatechange), [row-level security](https://supabase.com/docs/guides/database/postgres/row-level-security).
+
+## Registration and progression verification
+
+Apply both migrations in filename order to a new database; apply only the profiles migration if progress storage already exists. Review the trigger before enabling registrations: malformed or missing profile metadata intentionally rejects a new account atomically. Profile rows are readable only by their owner; clients cannot insert, modify or enumerate profiles. Auth metadata is display data, never authorization data. Birth dates must be between 1900-01-01 and today.
+
+The progression chart uses the signed-in workspace history for the selected language and level. It shows completed attempts per local calendar day over the last 14 days, including repeat attempts. The accessible table reports daily accuracy for automatically checked answers; writing and speaking self-assessments never become automatic marks. Empty periods remain empty, without fabricated data.
+
+Before deployment, register a test account, confirm its email, sign in with email/password, complete practices and reload from a second device. Verify invalid dates and missing profile fields fail through direct Auth requests, and verify a second authenticated account and anonymous requests cannot read the first profile. Check confirmation and recovery emails with production SMTP. These live checks require access to the target Supabase project and have not been performed by local source checks.

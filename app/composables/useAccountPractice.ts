@@ -2,6 +2,7 @@ import { createClient, type SupabaseClient, type User } from '@supabase/supabase
 import { createPractice } from './usePractice'
 import { createCloudProgress, ProgressConflict, type SyncStatus } from '../utils/cloudProgress'
 import { parseProgress } from '../utils/practice'
+import { validateRegistration, type Registration } from '../utils/registration'
 
 export function useAccountPractice() {
   const config = useRuntimeConfig().public
@@ -75,6 +76,21 @@ export function useAccountPractice() {
     try {
       const { error } = await client.auth.signInWithPassword(credentials)
       if (error) account.error = 'No se ha podido iniciar sesión. Revisa el email y la contraseña o inténtalo de nuevo.'
+    } catch { account.error = 'No se ha podido conectar. Comprueba tu conexión.' }
+    finally { account.busy = false }
+  }
+  async function register(value: Registration) {
+    if (!client || account.busy) return
+    account.error = validateRegistration(value); account.message = ''
+    if (account.error) return
+    account.busy = true
+    try {
+      const { data, error } = await client.auth.signUp({
+        email: value.email.trim(), password: value.password,
+        options: { emailRedirectTo: `${window.location.origin}/`, data: { name: value.name.trim(), surname: value.surname.trim(), birth: value.birth } },
+      })
+      if (error) account.error = 'No se ha podido crear la cuenta. Revisa los datos o inténtalo más tarde.'
+      else if (!data.session) account.message = 'Revisa tu email para confirmar el registro. Si ya tienes cuenta, inicia sesión o recupera tu contraseña.'
     } catch { account.error = 'No se ha podido conectar. Comprueba tu conexión.' }
     finally { account.busy = false }
   }
@@ -171,5 +187,5 @@ export function useAccountPractice() {
     window.removeEventListener('online', online)
     window.removeEventListener('pagehide', pagehide)
   })
-  return { ...state, account, login, logout, resetPassword, updatePassword, syncProgress, reloadProgress, importLocal }
+  return { ...state, account, login, register, logout, resetPassword, updatePassword, syncProgress, reloadProgress, importLocal }
 }

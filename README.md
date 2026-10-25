@@ -8,14 +8,14 @@ A Nuxt 4 and Tailwind CSS language-practice application for Catalan and English,
 - Automatic checking and explanations for multiple-choice activities.
 - Writing prompts, indicative word ranges, and self-assessment checklists.
 - Speaking prompts for independent or partner practice; no microphone capture or automatic assessment.
-- Personal email/password access with Supabase, cloud history and draft synchronization, objective-answer accuracy, unique-completion coverage, and JSON export. Browser-local mode remains available without account configuration.
+- Public registration with email, name, surname, birth date and confirmed password; email/password access with Supabase, cloud history and draft synchronization, objective-answer accuracy, unique-completion coverage, and JSON export. Browser-local mode remains available without account configuration.
 - Unseen activities take priority. Once a skill's pool is exhausted, the least recently seen activities return. Questions are marked as seen when displayed, including unfinished questions. No activity appears twice within one session.
 
 Content and level assignments are indicative starter material awaiting teacher review. This is not an official exam simulator or an indicator of certification readiness. The small starter bank will repeat quickly within individual skills; changing answer order is not treated as new content.
 
 ## Development
 
-Use Node.js 22.12 or newer within Node 22 and npm.
+Use Node.js 22.23.4 or newer within Node 22 and npm. Install and select the version recorded in `.nvmrc` with your Node version manager.
 
 ```sh
 npm ci
@@ -40,7 +40,7 @@ The lockfile pins the installed dependency tree. Browser-local mode needs no ext
 3. Use `npm ci` as the install command and `npm run build` as the build command. Leave the output directory at its framework default.
 4. Use `main` as the production branch. Feature and integration branches can use Vercel Preview deployments.
 5. Deploy and verify language/level selection, objective correction, writing, history persistence after reload, and responsive layout.
-6. For personal account access, apply the Supabase migration, create your user with public sign-ups disabled, configure the two public variables in Vercel, and redeploy. Follow [account setup](docs/account-setup.md) for recovery URLs, privacy and live verification.
+6. For personal account access, apply the Supabase migration, apply the user profiles migration, enable public sign-ups and email confirmation, configure the two public variables in Vercel, and redeploy. Follow [account setup](docs/account-setup.md) for recovery URLs, privacy and live verification.
 
 `vercel.json` declares the framework and commands. Nuxt/Nitro handles Vercel detection and output. A domain can stay with its existing provider; apply the exact DNS records shown by Vercel when attaching it.
 
@@ -77,6 +77,10 @@ The active session, language, level, selected answer, written draft and self-ass
 
 Storage failures are displayed explicitly. In local mode, an older tab detects that another tab has changed storage and pauses its own writes; in account mode, the database compares revisions across devices. Export the current session before discarding pending changes. JSON export includes the current session and draft, but importing exported files is not implemented. A draft incompatible with an updated exercise bank is retained as recoverable text rather than silently discarded. Browser-local storage is not a cloud backup; clearing site data removes local-mode progress but does not delete synchronized account progress.
 
+## User registration and progression
+
+The account screen supports registration, login and password recovery. Apply `supabase/migrations/202610250001_user_profiles.sql` after the progress migration and enable email sign-ups with confirmation in Supabase. Profiles are private to their owner. The progress screen includes a 14-day activity chart and an accessible daily accuracy table, scoped to language and level. See [account setup](docs/account-setup.md) for configuration and live checks.
+
 ## Next milestones
 
 1. Teacher-reviewed B2 banks, tagged by exam track, topic, skill, and difficulty, with substantially more unique tasks.
@@ -88,3 +92,25 @@ Storage failures are displayed explicitly. In local mode, an older tab detects t
 ## Git Flow
 
 `main` is production and `develop` is integration. Create `feature/*` branches from `develop` and merge through pull requests. Prepare releases on `release/*`, merge to production, add an annotated SemVer tag, and synchronise `develop`. Create urgent `hotfix/*` branches from production and merge into both production and integration. Do not rewrite shared history.
+
+## Security maintenance (2026-10-23)
+
+Node.js 22.23.4 is the minimum supported runtime, following the [October 21 Node.js security release](https://nodejs.org/en/blog/vulnerability/october-2026-security-releases). `.nvmrc` selects that version, `engines` limits the supported major to Node 22, and `.npmrc` enables `engine-strict` so `npm ci` rejects older runtimes. Keep later Node 22 security patches installed.
+
+Use Node.js 22.x on Vercel and verify that both the build logs and, for server deployments, the function runtime use 22.23.4 or a later patched Node 22 release. Vercel manages runtime patch versions; a repository setting alone cannot update an existing deployment. Redeploy after integrating these changes. If Vercel has not rolled out the minimum patch, installation intentionally fails instead of building with an affected runtime.
+
+Run `npm audit --offline=false` with network access after dependency updates. An offline or cached result is not a current security assessment. The lockfile must be committed together with dependency changes.
+
+The current application has no PHP runtime or Composer dependencies. The [October 21 PHP advisory](https://www.php.net/archive/2026.php) concerns PHP installations serving requests; changing JavaScript dependencies does not patch a separate PHP server or an old OctoberCMS deployment. Legacy PHP services, if still online, require a separate runtime update by their operator.
+### Remaining dependency advisories
+
+The online audit after the Nuxt 4.6.2 upgrade still reports 11 high-severity affected packages per project, propagated from two underlying advisories:
+
+- `braces` 3.0.3: [GHSA-vfj7-8cjw-p6xm](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm), stack exhaustion on deeply nested glob patterns. It is pulled in by Nitro's glob tooling.
+- `node-forge` 1.4.0: [GHSA-86w9-cpqp-85rv](https://github.com/advisories/GHSA-86w9-cpqp-85rv), RSA signature verification. It is pulled in by `listhen`.
+
+As of this review, both installed versions are the latest published npm versions and neither advisory lists a patched version. The 11 audit entries include parent packages; they are not 11 independent flaws. Do not use `npm audit fix --force`: npm proposes downgrading Nuxt to 4.1.3, which would reintroduce the fixed Nuxt vulnerabilities. Keep development servers private and do not pass untrusted glob patterns to build tooling. Recheck these dependencies when upstream publishes fixes.
+
+Tomeu Ferments and Portfolio ship static files, so these Node packages do not execute on public requests. Lang School builds a Nitro server; deployment runtime and bundled dependencies require separate verification. Passing tests and builds does not establish that every dependency vulnerability is unreachable.
+
+Validated locally with a SHA-256-verified official Node.js 22.23.4 binary: type checks and production builds for all three applications, all 20 Lang School tests, and Tomeu Ferments' generated SEO checks. Static builds emit a Nuxt/Nitro `cache-driver.mjs` external-resolution warning but finish successfully. No production deployment or global Node/PHP installation was changed.
