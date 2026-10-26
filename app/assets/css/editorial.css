@@ -155,3 +155,5 @@ textarea::placeholder { color: #68765f; opacity: 1; }
 @media (max-width: 390px) { main { padding-inline: 17px; }h1 { font-size: 34px; }.language-switch button { padding-inline: 9px; }.level-picker select { max-width: 130px; }.hero-copy { width: 100%; }.hero-art { display: none; }.skill-grid { grid-template-columns: 1fr; }.skill-card { grid-template-columns: 46px 1fr; }.skill-card > div:first-child { grid-row: 1 / 4; margin: 0; }.private-badge { display: none; } }
 @media (max-width: 700px) { .hero-art { display: none; }.hero-copy { width: 100%; }.hero-copy > p { max-width: 38ch; }.hero-copy h2 { max-width: 16ch; }.today-card .icon-tile { display: none; }.main-nav button { min-height: 44px; }.main-nav button svg { width: 16px; min-width: 16px; } }
 @media (prefers-reduced-motion: no-preference) { .hero-copy { animation: page-enter .45s ease-out both; }@keyframes page-enter { from { opacity: 0; transform: translateY(8px); }to { opacity: 1; transform: translateY(0); } } }
+.skill-footer { flex-wrap: wrap; row-gap: 6px; }
+.skill-footer .skill-test-count { flex-basis: 100%; order: 1; font-size: 12px; line-height: 1.5; }

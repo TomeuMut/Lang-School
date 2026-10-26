@@ -1,6 +1,6 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { exercises } from '../data/exercises'
-import { emptyProgress, parseProgress, parseWorkspace, selectExercises, type Language, type Level, type Skill, type Exercise, type PracticeWorkspace } from '../utils/practice'
+import { emptyProgress, parseProgress, parseWorkspace, selectPracticeTest, type Language, type Level, type Skill, type Exercise, type PracticeWorkspace } from '../utils/practice'
 
 const STORAGE_KEY = 'lang-school:progress:v1'
 export function usePractice() {
@@ -36,10 +36,11 @@ export function createPractice() {
   const checked = ref(false)
   const finished = ref(false)
   const sessionResults = ref<(boolean | null)[]>([])
-  const pool = computed(() => exercises.filter(q => q.language === language.value && q.level === level.value))
+  const pool = computed(() => exercises.filter(q => !q.retired && q.language === language.value && q.level === level.value))
   const current = computed(() => session.value[index.value])
   const scopedAttempts = computed(() => {
-    const ids = new Set(pool.value.map(q => q.id))
+    // Historical attempts remain visible after starter activities are retired.
+    const ids = new Set(exercises.filter(q => q.language === language.value && q.level === level.value).map(q => q.id))
     return progress.value.attempts.filter(a => ids.has(a.exerciseId))
   })
   const scored = computed(() => scopedAttempts.value.filter(a => a.correct !== null))
@@ -135,15 +136,17 @@ export function createPractice() {
     checklist.value = []
     checked.value = false
     if (current.value) {
-      progress.value.seen[current.value.id] = Date.now()
+      // Preserve strict ordering when several starts happen within one clock
+      // tick, or when a saved device clock was ahead of this device.
+      const latest = Object.values(progress.value.seen).reduce((maximum, value) => Math.max(maximum, value), 0)
+      progress.value.seen[current.value.id] = Math.max(Date.now(), latest + 1)
       save()
     }
   }
   function start(skill: Skill | 'mixed') {
     if (!ready.value) return
     restoredSession.value = false
-    const available = pool.value.filter(q => skill === 'mixed' ? !!q.options : q.skill === skill)
-    session.value = selectExercises(available, progress.value.seen, skill === 'mixed' ? 4 : 2)
+    session.value = selectPracticeTest(pool.value, progress.value.seen, skill)
     index.value = 0
     finished.value = false
     sessionResults.value = []

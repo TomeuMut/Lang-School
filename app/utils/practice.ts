@@ -15,6 +15,8 @@ export interface Exercise {
   explanation?: string
   checklist?: string[]
   words?: [number, number]
+  testNumber?: number
+  retired?: boolean
 }
 export interface Attempt {
   id: string
@@ -51,7 +53,7 @@ export function parseWorkspace(raw: string | null, bank: Exercise[]): PracticeWo
   try {
     const value = JSON.parse(raw)?.workspace
     if (!value || value.version !== 1 || !['ca', 'en'].includes(value.language) || !levels.includes(value.level)) return null
-    if (!Array.isArray(value.exerciseIds) || value.exerciseIds.length > 4 || new Set(value.exerciseIds).size !== value.exerciseIds.length) return null
+    if (!Array.isArray(value.exerciseIds) || value.exerciseIds.length > 10 || new Set(value.exerciseIds).size !== value.exerciseIds.length) return null
     const questions = value.exerciseIds.map((id: unknown) => bank.find(q => q.id === id && q.language === value.language && q.level === value.level))
     if (questions.some((q: Exercise | undefined) => !q)) return null
     if (!Number.isInteger(value.index) || value.index < 0 || (questions.length ? value.index >= questions.length : value.index !== 0)) return null
@@ -76,6 +78,21 @@ export function selectExercises(pool: Exercise[], seen: Record<string, number>, 
     .map(q => ({ q, seen: seen[q.id] ?? 0, tie: random() }))
     .sort((a, b) => a.seen - b.seen || a.tie - b.tie)
     .slice(0, Math.max(0, count)).map(item => item.q)
+}
+
+// Rotate whole tests, even when the previous session was left unfinished.
+// A test never started comes before a previously opened test. After a full
+// cycle, the least recently opened test is selected again.
+export function selectPracticeTest(pool: Exercise[], seen: Record<string, number>, skill: Skill | 'mixed') {
+  const available = pool.filter(q => !q.retired && (skill === 'mixed' ? q.skill === 'grammar' || q.skill === 'reading' : q.skill === skill))
+  const tests = [1, 2, 3, 4, 5].map(number => {
+    const questions = available.filter(q => q.testNumber === number)
+    return { number, questions, lastSeen: Math.max(0, ...questions.map(q => seen[q.id] ?? 0)) }
+  }).filter(test => test.questions.length)
+  const chosen = tests.sort((a, b) => a.lastSeen - b.lastSeen || a.number - b.number)[0]
+  if (!chosen) return selectExercises(available, seen, 10)
+  if (skill !== 'mixed') return chosen.questions.slice(0, 10)
+  return [...chosen.questions.filter(q => q.skill === 'grammar').slice(0, 5), ...chosen.questions.filter(q => q.skill === 'reading').slice(0, 5)]
 }
 
 export function parseProgress(raw: string | null): Progress {
