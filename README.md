@@ -2,16 +2,16 @@
 
 A Nuxt 4 and Tailwind CSS language-practice application for Catalan and English, with A1–C2 selection and B2 selected by default. The interface is in Spanish and the practice content uses the selected target language.
 
-## First edition
+## Practice bank
 
-- 72 original starter activities: six per language and level (two grammar, two reading, one writing, one speaking).
+- Five tests of ten activities for each skill (grammar/vocabulary, reading, writing and speaking), in Catalan and English at all six A1-C2 levels: 240 tests and 2,400 scoped activities. Each grammar test covers ten constructions with different examples across the five tests. Each reading test contains two texts and five questions per text. Writing and speaking each provide ten separate communicative tasks per test, grouped around a scenario.
 - Automatic checking and explanations for multiple-choice activities.
 - Writing prompts, indicative word ranges, and self-assessment checklists.
 - Speaking prompts for independent or partner practice; no microphone capture or automatic assessment.
 - Public registration with email, name, surname, birth date and confirmed password; email/password access with Supabase, cloud history and draft synchronization, objective-answer accuracy, unique-completion coverage, and JSON export. Browser-local mode remains available without account configuration.
-- Unseen activities take priority. Once a skill's pool is exhausted, the least recently seen activities return. Questions are marked as seen when displayed, including unfinished questions. No activity appears twice within one session.
+- Whole tests rotate independently for each language, level and skill. Tests not yet opened come first; after all five have been opened, the least recently opened test returns. An unfinished test is restored with **Continuar sesi?n**; starting another test advances the rotation. Only questions actually displayed are marked as seen. Mixed practice combines five grammar and five reading questions from the same test number.
 
-Content and level assignments are indicative starter material awaiting teacher review. This is not an official exam simulator or an indicator of certification readiness. The small starter bank will repeat quickly within individual skills; changing answer order is not treated as new content.
+Content and level assignments are indicative practice material awaiting teacher review, not an official exam simulator or an indicator of certification readiness. Reading material is shared within adjacent learning bands A1-A2, B1-B2 and C1-C2; changing level within a band can therefore revisit the same texts and questions. Production tasks reuse a scenario across ten different communicative purposes. Answer order changes are not counted as new content. Writing and speaking remain self-assessed, without automatic grading.
 
 ## Development
 
@@ -58,7 +58,8 @@ Always check the specifications for the actual exam session. Neither affiliation
 
 ## Architecture and privacy
 
-- `app/data/exercises.ts`: typed, original starter bank with stable exercise IDs.
+- `app/data/exercises.ts`: combined activity index preserving the 72 legacy starter IDs for history and saved drafts.
+- `app/data/practice-bank/`: authored grammar examples, banded reading texts/questions and scenario-based writing/speaking tasks for the expanded tests.
 - `app/utils/practice.ts`: selection policy, progress types, and defensive storage parsing.
 - `app/composables/usePractice.ts`: session lifecycle and local persistence.
 - `app/app.vue`: responsive dashboard, practice, history, and resource screens.
@@ -85,7 +86,7 @@ Vercel's Supabase integration variables (`SUPABASE_URL` and `NEXT_PUBLIC_SUPABAS
 
 ## Next milestones
 
-1. Teacher-reviewed B2 banks, tagged by exam track, topic, skill, and difficulty, with substantially more unique tasks.
+1. Teacher review of the expanded banks and level assignments, followed by exam-track tags and level-specific reading material.
 2. Licensed or original listening recordings and EOI mediation tasks.
 3. Separate official-format mock exams with versioned specifications and grading rubrics.
 4. Connect and verify the implemented Supabase account and progress integration in production; consider a later real-time synchronization flow.
