@@ -1,5 +1,7 @@
 # Lang School
 
+Current release: **v1.2.0**. See the [release notes](docs/releases/1.2.0.md).
+
 A Nuxt 4 and Tailwind CSS language-practice application for Catalan and English, with A1–C2 selection and B2 selected by default. The interface is in Spanish and the practice content uses the selected target language.
 
 ## Practice bank

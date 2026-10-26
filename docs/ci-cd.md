@@ -10,7 +10,7 @@
 
 Actions are pinned to commit SHAs; workflow permissions are limited to `contents: read`, and checkout does not persist credentials. Node.js is selected from `.nvmrc`. No repository secrets, Vercel token or Supabase credentials are needed for CI.
 
-Lang School smoke tests complete one objective practice, reload the page, and verify the saved attempt and progression screen. CI uses browser-local mode with Supabase configuration cleared; it does not test production Auth, confirmation emails or database policies.
+Lang School smoke tests verify a saved objective attempt and progression, then complete a ten-question grammar test, reload midway and confirm that the next practice opens test two. CI uses browser-local mode with Supabase configuration cleared; it does not test production Auth, confirmation emails or database policies.
 
 ## Local checks
 
