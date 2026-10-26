@@ -80,15 +80,17 @@ test('completed session remains completed on reload', t => {
   const storage = memoryStorage()
   const first = practice(t, storage)
   first.start('writing')
-  first.response.value = 'Completed response'
-  first.checklist.value = [first.current.value!.checklist![0]!]
-  first.submit()
-  first.next()
+  for (let i = 0; i < 10; i++) {
+    first.response.value = 'Completed response'
+    first.checklist.value = [first.current.value!.checklist![0]!]
+    first.submit()
+    first.next()
+  }
   const restored = practice(t, storage)
   assert.equal(restored.finished.value, true)
   assert.equal(restored.restoredSession.value, false)
-  assert.equal(restored.progress.value.attempts.length, 1)
-  assert.deepEqual(restored.sessionResults.value, [null])
+  assert.equal(restored.progress.value.attempts.length, 10)
+  assert.deepEqual(restored.sessionResults.value, Array(10).fill(null))
 })
 
 test('changing context discards the old draft and keeps submitted history', t => {
@@ -187,4 +189,47 @@ test('storage failure is visible and does not claim the draft was saved', async 
   assert.equal(unavailable.ready.value, true)
   assert.equal(unavailable.draftSaved.value, false)
   assert.ok(unavailable.storageError.value.length > 0)
+})
+
+test('ten-question grammar sessions restore question nine without losing attempts', t => {
+  const storage = memoryStorage()
+  const state = practice(t, storage)
+  state.start('grammar')
+  assert.equal(state.session.value.length, 10)
+  for (let i = 0; i < 8; i++) {
+    state.selected.value = state.current.value!.answer!
+    state.submit(); state.next()
+  }
+  const restored = practice(t, storage)
+  assert.equal(restored.index.value, 8)
+  assert.equal(restored.session.value.length, 10)
+  assert.equal(restored.progress.value.attempts.length, 8)
+  assert.equal(restored.current.value!.id, state.current.value!.id)
+})
+
+test('restarting rotates whole tests even before completing any questions and after reload', t => {
+  const storage = memoryStorage()
+  let state = practice(t, storage)
+  for (const number of [1, 2, 3, 4, 5, 1, 2]) {
+    state.start('grammar')
+    assert.equal(state.current.value!.testNumber, number)
+    state = practice(t, storage)
+  }
+  assert.equal(state.progress.value.attempts.length, 0)
+})
+
+test('legacy starter history and short drafts remain recoverable with the expanded bank', t => {
+  const legacy = exercises.find(q => q.id === 'ca-B2-writing-1')!
+  assert.ok(legacy.retired)
+  const storage = memoryStorage(JSON.stringify({ version: 1, seen: { [legacy.id]: 100 }, attempts: [{ id: 'old', exerciseId: legacy.id, date: 100, correct: null, answer: 'Older writing' }], workspace: {
+    version: 1, language: 'ca', level: 'B2', exerciseIds: [legacy.id], index: 0, selected: null, response: 'Keep my old draft', checklist: [], checked: false, finished: false, results: [],
+  } }))
+  const state = practice(t, storage)
+  assert.equal(state.response.value, 'Keep my old draft')
+  assert.equal(state.current.value!.id, legacy.id)
+  assert.equal(state.scopedAttempts.value.length, 1)
+  state.start('writing')
+  assert.equal(state.session.value.length, 10)
+  assert.ok(state.session.value.every(q => !q.retired))
+  assert.equal(state.scopedAttempts.value.length, 1)
 })

@@ -1,4 +1,5 @@
 import type { Exercise, Language, Level } from '../utils/practice'
+import { expandedExercises } from './practice-bank'
 
 // Original starter content. Level labels are indicative, not examiner validation.
 type Pack = {
@@ -159,7 +160,7 @@ const packs: Record<Language, Record<Level, Pack>> = {
 }
 
 const wordRanges: Record<Level, [number, number]> = { A1: [30, 50], A2: [60, 90], B1: [100, 140], B2: [150, 200], C1: [220, 280], C2: [280, 350] }
-export const exercises: Exercise[] = Object.entries(packs).flatMap(([language, byLevel]) =>
+const legacyExercises: Exercise[] = Object.entries(packs).flatMap(([language, byLevel]) =>
   Object.entries(byLevel).flatMap(([level, pack]) => {
     const base = { language: language as Language, level: level as Level }
     return [
@@ -170,3 +171,7 @@ export const exercises: Exercise[] = Object.entries(packs).flatMap(([language, b
     ]
   }),
 )
+
+// Keep starter IDs readable by old history and saved workspaces. They are not
+// selected for new sessions; active practice uses the five expanded tests.
+export const exercises: Exercise[] = [...legacyExercises.map(exercise => ({ ...exercise, retired: true })), ...expandedExercises]
